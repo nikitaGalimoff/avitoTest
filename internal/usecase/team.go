@@ -23,32 +23,10 @@ func NewTeamUseCase(teamRepo domain.TeamRepository, userRepo domain.UserReposito
 // CreateTeam создает команду с участниками
 func (uc *TeamUseCase) CreateTeam(ctx context.Context, team *domain.Team) (*domain.Team, error) {
 	// Проверяем, существует ли команда
-	exists, err := uc.teamRepo.Exists(ctx, team.TeamName)
+	err := uc.teamRepo.Create(ctx, team)
 	if err != nil {
 		return nil, err
 	}
-	if exists {
-		return nil, domain.NewDomainError(domain.ErrorCodeTeamExists, "team_name already exists")
-	}
-
-	// Создаем/обновляем всех пользователей команды
-	for _, member := range team.Members {
-		user := &domain.User{
-			UserID:   member.UserID,
-			Username: member.Username,
-			TeamName: team.TeamName,
-			IsActive: member.IsActive,
-		}
-		if err := uc.userRepo.CreateOrUpdate(ctx, user); err != nil {
-			return nil, err
-		}
-	}
-
-	// Сохраняем команду (в нашей модели это просто проверка)
-	if err := uc.teamRepo.Create(ctx, team); err != nil {
-		return nil, err
-	}
-
 	return team, nil
 }
 
@@ -56,4 +34,3 @@ func (uc *TeamUseCase) CreateTeam(ctx context.Context, team *domain.Team) (*doma
 func (uc *TeamUseCase) GetTeam(ctx context.Context, teamName string) (*domain.Team, error) {
 	return uc.teamRepo.GetByName(ctx, teamName)
 }
-

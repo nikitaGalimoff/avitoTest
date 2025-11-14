@@ -3,6 +3,8 @@ package handler
 import (
 	"avitotest/internal/domain"
 	"avitotest/internal/usecase"
+	"context"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,21 +24,13 @@ func NewTeamHandler(teamUseCase *usecase.TeamUseCase, auth *AuthMiddleware) *Tea
 
 // CreateTeam обрабатывает POST /team/add
 func (h *TeamHandler) CreateTeam(c echo.Context) error {
-	var req struct {
-		TeamName string                `json:"team_name"`
-		Members  []domain.TeamMember `json:"members"`
-	}
+	var req *domain.Team
 
 	if err := c.Bind(&req); err != nil {
 		return WriteError(c, err, 400)
 	}
 
-	team := &domain.Team{
-		TeamName: req.TeamName,
-		Members:  req.Members,
-	}
-
-	result, err := h.teamUseCase.CreateTeam(c.Request().Context(), team)
+	result, err := h.teamUseCase.CreateTeam(context.Background(), req)
 	if err != nil {
 		return WriteError(c, err, 0)
 	}

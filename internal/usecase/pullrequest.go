@@ -66,10 +66,10 @@ func (uc *PullRequestUseCase) CreatePullRequest(
 	reviewers := uc.selectReviewers(candidates, 2)
 
 	pr := &domain.PullRequest{
-		PullRequestID:    prID,
-		PullRequestName:  prName,
-		AuthorID:         authorID,
-		Status:           domain.PRStatusOpen,
+		PullRequestID:     prID,
+		PullRequestName:   prName,
+		AuthorID:          authorID,
+		Status:            domain.PRStatusOpen,
 		AssignedReviewers: reviewers,
 	}
 
@@ -185,15 +185,7 @@ func (uc *PullRequestUseCase) ReassignReviewer(
 }
 
 // GetPullRequestsByReviewer получает список PR, где пользователь назначен ревьювером
-func (uc *PullRequestUseCase) GetPullRequestsByReviewer(
-	ctx context.Context,
-	reviewerID string,
-) ([]*domain.PullRequestShort, error) {
-	// Проверяем, существует ли пользователь
-	_, err := uc.userRepo.GetByID(ctx, reviewerID)
-	if err != nil {
-		return nil, err
-	}
+func (uc *PullRequestUseCase) GetPullRequestsByReviewer(ctx context.Context, reviewerID string) ([]*domain.PullRequestShort, error) {
 
 	// Получаем все PR, где пользователь является ревьювером
 	prs, err := uc.prRepo.GetByReviewerID(ctx, reviewerID)
@@ -243,4 +235,3 @@ func (uc *PullRequestUseCase) selectReviewers(candidates []*domain.User, maxCoun
 
 	return reviewers
 }
-
