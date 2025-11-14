@@ -25,4 +25,3 @@ type PullRequestRepository interface {
 	Update(ctx context.Context, pr *PullRequest) error
 	Exists(ctx context.Context, prID string) (bool, error)
 }
-

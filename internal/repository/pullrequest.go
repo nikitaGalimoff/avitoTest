@@ -29,7 +29,7 @@ func (r *pullRequestRepository) Create(ctx context.Context, pr *domain.PullReque
 		INSERT INTO pull_requests (pull_request_id, pull_request_name, author_id, status, assigned_reviewers, created_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
-	
+
 	now := time.Now()
 	_, err = r.db.ExecContext(ctx, query,
 		pr.PullRequestID,
@@ -54,7 +54,7 @@ func (r *pullRequestRepository) GetByID(ctx context.Context, prID string) (*doma
 		FROM pull_requests
 		WHERE pull_request_id = $1
 	`
-	
+
 	var pr domain.PullRequest
 	var statusStr string
 	var reviewersJSON []byte
@@ -98,7 +98,7 @@ func (r *pullRequestRepository) GetByReviewerID(ctx context.Context, reviewerID 
 		FROM pull_requests
 		WHERE assigned_reviewers::jsonb ? $1
 	`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, reviewerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get pull requests by reviewer: %w", err)
@@ -169,7 +169,7 @@ func (r *pullRequestRepository) Update(ctx context.Context, pr *domain.PullReque
 		    assigned_reviewers = $5, merged_at = $6
 		WHERE pull_request_id = $1
 	`
-	
+
 	_, err = r.db.ExecContext(ctx, query,
 		pr.PullRequestID,
 		pr.PullRequestName,
@@ -187,7 +187,7 @@ func (r *pullRequestRepository) Update(ctx context.Context, pr *domain.PullReque
 
 func (r *pullRequestRepository) Exists(ctx context.Context, prID string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM pull_requests WHERE pull_request_id = $1 LIMIT 1)`
-	
+
 	var exists bool
 	err := r.db.QueryRowContext(ctx, query, prID).Scan(&exists)
 	if err != nil {
@@ -195,4 +195,3 @@ func (r *pullRequestRepository) Exists(ctx context.Context, prID string) (bool, 
 	}
 	return exists, nil
 }
-

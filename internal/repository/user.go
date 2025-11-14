@@ -33,7 +33,7 @@ func (r *userRepository) CreateOrUpdate(ctx context.Context, user *domain.User) 
 
 func (r *userRepository) GetByID(ctx context.Context, userID string) (*domain.User, error) {
 	query := `SELECT user_id, username, team_name, is_active FROM users WHERE user_id = $1`
-	
+
 	var user domain.User
 	err := r.db.QueryRowContext(ctx, query, userID).Scan(
 		&user.UserID,
@@ -52,7 +52,7 @@ func (r *userRepository) GetByID(ctx context.Context, userID string) (*domain.Us
 
 func (r *userRepository) GetByTeamName(ctx context.Context, teamName string) ([]*domain.User, error) {
 	query := `SELECT user_id, username, team_name, is_active FROM users WHERE team_name = $1`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, teamName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get users by team: %w", err)
@@ -77,7 +77,7 @@ func (r *userRepository) GetByTeamName(ctx context.Context, teamName string) ([]
 
 func (r *userRepository) SetIsActive(ctx context.Context, userID string, isActive bool) error {
 	query := `UPDATE users SET is_active = $1 WHERE user_id = $2`
-	
+
 	result, err := r.db.ExecContext(ctx, query, isActive, userID)
 	if err != nil {
 		return fmt.Errorf("failed to update user activity: %w", err)
@@ -94,4 +94,3 @@ func (r *userRepository) SetIsActive(ctx context.Context, userID string, isActiv
 
 	return nil
 }
-

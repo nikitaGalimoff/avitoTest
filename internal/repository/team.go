@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 
 	"avitotest/internal/domain"
 )
@@ -18,25 +19,36 @@ func NewTeamRepository(db *sql.DB) domain.TeamRepository {
 }
 
 func (r *teamRepository) Create(ctx context.Context, team *domain.Team) error {
-	// Проверяем, существует ли команда
-	exists, err := r.Exists(ctx, team.TeamName)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return domain.NewDomainError(domain.ErrorCodeTeamExists, "team_name already exists")
+	if len(team.Members) == 0 {
+		return nil // Нет пользователей для обновления
 	}
 
-	// Создаем команду (в нашей модели команда - это просто группа пользователей)
-	// Пользователи уже должны быть созданы через UserRepository
-	// Здесь мы просто проверяем, что команда не существует
+	// Формируем запрос с динамическим количеством параметров
+	args := []interface{}{team.TeamName}
+	placeholders := make([]string, len(team.Members))
+
+	for i, member := range team.Members {
+		placeholders[i] = fmt.Sprintf("$%d", i+2)
+		args = append(args, member.UserID)
+	}
+
+	query := fmt.Sprintf(
+		`UPDATE users SET team_name = $1 WHERE user_id IN (%s)`,
+		strings.Join(placeholders, ", "),
+	)
+
+	_, err := r.db.ExecContext(ctx, query, args...)
+	if err != nil {
+		return fmt.Errorf("failed to update team name for users: %w", err)
+	}
+
 	return nil
 }
 
 func (r *teamRepository) GetByName(ctx context.Context, teamName string) (*domain.Team, error) {
 	// Получаем всех пользователей команды
 	query := `SELECT user_id, username, is_active FROM users WHERE team_name = $1`
-	
+
 	rows, err := r.db.QueryContext(ctx, query, teamName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get team: %w", err)
@@ -67,8 +79,8 @@ func (r *teamRepository) GetByName(ctx context.Context, teamName string) (*domai
 }
 
 func (r *teamRepository) Exists(ctx context.Context, teamName string) (bool, error) {
-	query := `SELECT EXISTS(SELECT 1 FROM users WHERE team_name = $1 LIMIT 1)`
-	
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE team_name = $1 )`
+
 	var exists bool
 	err := r.db.QueryRowContext(ctx, query, teamName).Scan(&exists)
 	if err != nil {
@@ -76,4 +88,3 @@ func (r *teamRepository) Exists(ctx context.Context, teamName string) (bool, err
 	}
 	return exists, nil
 }
-

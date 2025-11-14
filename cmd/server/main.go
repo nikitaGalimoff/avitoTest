@@ -1,13 +1,9 @@
 package main
 
-import (
-	"log"
-
-	"avitotest/cmd/server/app"
-)
+import "avitotest/internal/app"
 
 func main() {
 	if err := app.Run(); err != nil {
-		log.Fatalf("Application failed: %v", err)
+		panic(err)
 	}
 }

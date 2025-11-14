@@ -28,6 +28,7 @@ func (uc *UserUseCase) SetIsActive(ctx context.Context, userID string, isActive 
 }
 
 // GetReviewPullRequests получает список PR, где пользователь назначен ревьювером
+// Примечание: этот метод не используется, вместо него используется PullRequestUseCase.GetPullRequestsByReviewer
 func (uc *UserUseCase) GetReviewPullRequests(ctx context.Context, userID string) ([]*domain.PullRequestShort, error) {
 	// Проверяем, существует ли пользователь
 	_, err := uc.userRepo.GetByID(ctx, userID)
@@ -35,8 +36,6 @@ func (uc *UserUseCase) GetReviewPullRequests(ctx context.Context, userID string)
 		return nil, err
 	}
 
-	// Получаем PR через PRUseCase (чтобы избежать циклических зависимостей)
-	// В реальности лучше использовать отдельный метод в PRRepository
-	return nil, nil // Будет реализовано через PRUseCase
+	// Этот метод не реализован, так как используется PullRequestUseCase.GetPullRequestsByReviewer
+	return nil, nil
 }
-
