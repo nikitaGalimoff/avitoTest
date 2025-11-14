@@ -47,7 +47,7 @@ func (h *TeamHandler) GetTeam(c echo.Context) error {
 		return WriteError(c, domain.NewDomainError(domain.ErrorCodeNotFound, "team_name is required"), 400)
 	}
 
-	team, err := h.teamUseCase.GetTeam(c.Request().Context(), teamName)
+	team, err := h.teamUseCase.GetTeam(context.Background(), teamName)
 	if err != nil {
 		return WriteError(c, err, 0)
 	}

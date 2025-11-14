@@ -38,7 +38,7 @@ func NewContainer() (*Container, error) {
 
 	postgresDB, err := repository.NewPostgresDB(cfg.GetDBConnectionString())
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	db := postgresDB.DB()
 
@@ -53,12 +53,13 @@ func NewContainer() (*Container, error) {
 	pullRequestUseCase := usecase.NewPullRequestUseCase(pullRequestRepo, userRepo, teamRepo)
 
 	// Инициализируем middleware
-	authMiddleware := handler.NewAuthMiddleware("cfg.AdminToken", "cfg.UserToken")
+	authMiddleware := handler.NewAuthMiddleware(cfg.AdminToken, cfg.UserToken)
 
 	// Инициализируем router
 	router := handler.NewRouter(teamUseCase, userUseCase, pullRequestUseCase, authMiddleware)
 
 	return &Container{
+		Config:             cfg,
 		DB:                 db,
 		TeamRepo:           teamRepo,
 		UserRepo:           userRepo,

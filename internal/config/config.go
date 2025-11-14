@@ -7,27 +7,27 @@ import (
 
 // Config представляет конфигурацию приложения
 type Config struct {
-	ServerPort  string
-	DBHost      string
-	DBPort      string
-	DBUser      string
-	DBPassword  string
-	DBName      string
-	AdminToken  string
-	UserToken   string
+	ServerPort string
+	DBHost     string
+	DBPort     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	AdminToken string
+	UserToken  string
 }
 
 // Load загружает конфигурацию из переменных окружения
 func Load() *Config {
 	return &Config{
-		ServerPort:  getEnv("SERVER_PORT", "8080"),
-		DBHost:      getEnv("DB_HOST", "localhost"),
-		DBPort:      getEnv("DB_PORT", "5432"),
-		DBUser:      getEnv("DB_USER", "postgres"),
-		DBPassword:  getEnv("DB_PASSWORD", "postgres"),
-		DBName:      getEnv("DB_NAME", "avitotest"),
-		AdminToken:  getEnv("ADMIN_TOKEN", "admin-token"),
-		UserToken:   getEnv("USER_TOKEN", "user-token"),
+		ServerPort: getEnv("SERVER_PORT", "8080"),
+		DBHost:     getEnv("DB_HOST", "postgres"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBUser:     getEnv("DB_USER", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBName:     getEnv("DB_NAME", "avitotest"),
+		AdminToken: getEnv("ADMIN_TOKEN", "admin-token"),
+		UserToken:  getEnv("USER_TOKEN", "user-token"),
 	}
 }
 
@@ -43,4 +43,3 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
-

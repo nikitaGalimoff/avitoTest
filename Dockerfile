@@ -11,7 +11,7 @@ RUN go mod tidy
 COPY . .
 
 # Собираем приложение
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/server
+RUN go build -o main ./cmd/server
 
 # Final stage
 FROM alpine:latest
@@ -25,7 +25,6 @@ COPY --from=builder /app/main .
 # Копируем миграции
 COPY --from=builder /app/migrations ./migrations
 
-EXPOSE 8080
 
 CMD ["./main"]
 

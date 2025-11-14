@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	"avitotest/internal/domain"
 )
@@ -13,17 +14,19 @@ type teamRepository struct {
 	db *sql.DB
 }
 
+const timeout = 5 * time.Second
+
 // NewTeamRepository создает новый репозиторий команд
 func NewTeamRepository(db *sql.DB) domain.TeamRepository {
 	return &teamRepository{db: db}
 }
 
 func (r *teamRepository) Create(ctx context.Context, team *domain.Team) error {
+
 	if len(team.Members) == 0 {
 		return nil // Нет пользователей для обновления
 	}
 
-	// Формируем запрос с динамическим количеством параметров
 	args := []interface{}{team.TeamName}
 	placeholders := make([]string, len(team.Members))
 
@@ -31,11 +34,14 @@ func (r *teamRepository) Create(ctx context.Context, team *domain.Team) error {
 		placeholders[i] = fmt.Sprintf("$%d", i+2)
 		args = append(args, member.UserID)
 	}
-
+	//ПЕРЕПИСАТЬ НА UPSERt
 	query := fmt.Sprintf(
 		`UPDATE users SET team_name = $1 WHERE user_id IN (%s)`,
 		strings.Join(placeholders, ", "),
 	)
+
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
 
 	_, err := r.db.ExecContext(ctx, query, args...)
 	if err != nil {
@@ -46,7 +52,8 @@ func (r *teamRepository) Create(ctx context.Context, team *domain.Team) error {
 }
 
 func (r *teamRepository) GetByName(ctx context.Context, teamName string) (*domain.Team, error) {
-	// Получаем всех пользователей команды
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
 	query := `SELECT user_id, username, is_active FROM users WHERE team_name = $1`
 
 	rows, err := r.db.QueryContext(ctx, query, teamName)
@@ -79,6 +86,9 @@ func (r *teamRepository) GetByName(ctx context.Context, teamName string) (*domai
 }
 
 func (r *teamRepository) Exists(ctx context.Context, teamName string) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
 	query := `SELECT EXISTS(SELECT 1 FROM users WHERE team_name = $1 )`
 
 	var exists bool

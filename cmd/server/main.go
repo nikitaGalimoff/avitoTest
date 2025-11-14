@@ -1,6 +1,8 @@
 package main
 
-import "avitotest/internal/app"
+import (
+	"avitotest/internal/app"
+)
 
 func main() {
 	app.Run()

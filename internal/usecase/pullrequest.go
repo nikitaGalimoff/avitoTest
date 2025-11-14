@@ -29,10 +29,7 @@ func NewPullRequestUseCase(
 }
 
 // CreatePullRequest создает PR и автоматически назначает до 2 ревьюверов
-func (uc *PullRequestUseCase) CreatePullRequest(
-	ctx context.Context,
-	prID, prName, authorID string,
-) (*domain.PullRequest, error) {
+func (uc *PullRequestUseCase) CreatePullRequest(ctx context.Context, prID, prName, authorID string) (*domain.PullRequest, error) {
 	// Проверяем, существует ли PR
 	exists, err := uc.prRepo.Exists(ctx, prID)
 	if err != nil {
